@@ -1,0 +1,85 @@
+---
+title: "Log regression & regression tree"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+movies <- read.csv(file = "C:/Users/devon/Desktop/Data311/project/IMDB-Movie-Data.csv")
+attach(movies)
+slr <- lm(Rank ~ Revenue..Millions.) 
+summary(slr)
+```
+
+## Fixing NA values
+varibale named NewMovieDS has no NA values
+```{r}
+
+any(is.na(movies))
+sum(is.na(movies))
+colSums(is.na(movies))
+NewMovieDS <- na.omit(movies)
+any(is.na(NewMovieDS))
+nrow(NewMovieDS)
+```
+
+## Logistic regression
+For rating
+```{r}
+simlog<-glm(factor(Rating)~Year+Votes+Metascore,data=NewMovieDS, family=binomial)
+#table(predict(simlog, type="response")>0.5, factor(Ratings)
+summary(simlog)
+summary(simlog)$coef
+```
+Logistic doesn't look to good at predicting rating (this is after I got rid of the predictors with the worst p values)
+
+For rank
+```{r}
+simlog2<-glm(factor(Rank)~+Year+Runtime..Minutes.+Votes,data=NewMovieDS, family=binomial)
+summary(simlog2)
+summary(simlog2)$coef
+```
+Not to bad for rank. p value of Year increases if runtime is taken out
+
+FOr Genre
+```{r}
+simlog3<-glm(factor(Genre)~Rank+Rating+Votes+Revenue..Millions.+Metascore,data=NewMovieDS, family=binomial)
+summary(simlog3)
+summary(simlog3)$coef
+```
+Logistic regression seems to be fairly good at predicting genre as all p values look to be significatn (except runtime)
+
+For Revenue
+```{r}
+simlog4<-glm(factor(Revenue..Millions.)~Rating+Runtime..Minutes.+Votes,data=NewMovieDS, family=binomial)
+summary(simlog4)
+summary(simlog4)$coef
+```
+Log regression not bad for revenue but not good either (pvalue for votes increases if rating taken out)
+
+For Runtime
+```{r}
+simlog5<-glm(factor(Runtime..Minutes.)~Rank+Rating+Votes+Revenue..Millions.+Metascore,data=NewMovieDS, family=binomial)
+summary(simlog5)
+summary(simlog5)$coef
+```
+At a glance can tell not good for predicting runtime
+
+For votes
+```{r}
+simlog6<-glm(factor(Votes)~Rank+Rating+Runtime..Minutes.+Revenue..Millions.,data=NewMovieDS, family=binomial)
+summary(simlog6)
+summary(simlog6)$coef
+```
+As before at a glance can tell not very good at predicting votes
+
+For MetaScore
+```{r}
+simlog7<-glm(factor(Metascore)~Rank+Runtime..Minutes.+Rating+Votes,data=NewMovieDS, family=binomial)
+summary(simlog7)
+summary(simlog7)$coef
+```
+
