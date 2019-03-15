@@ -1,0 +1,49 @@
+---
+title: "LDA/QDA"
+author: "Vaibhav"
+date: '2019-03-14'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+movies <- read.csv(file = "IMDB-Movie-Data.csv")
+attach(movies)
+slr <- lm(Rank ~ Revenue..Millions.) 
+summary(slr)
+```
+
+## Fixing NA values
+varibale named NewMovieDS has no NA values
+```{r}
+
+any(is.na(movies))
+sum(is.na(movies))
+colSums(is.na(movies))
+NewMovieDS <- na.omit(movies)
+any(is.na(NewMovieDS))
+nrow(NewMovieDS)
+```
+
+## LDA
+
+```{r}
+library(MASS)
+movies <- read.csv(file = "IMDB-Movie-Data.csv")
+attach(movies)
+mylda <- lda(Rank ~ Revenue..Millions.)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
