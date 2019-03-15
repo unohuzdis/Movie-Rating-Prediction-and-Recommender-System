@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 movies <- read.csv(file = "P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/IMDB-Movie-Data.csv")
 attach(movies)
+View(movies)
 slr <- lm(Rank ~ Revenue..Millions.) 
 summary(slr)
 ```
