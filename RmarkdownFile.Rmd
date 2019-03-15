@@ -8,14 +8,32 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+P:\Term4\DATA311\Project\imdb-data-from-2006-to-2016\OriginalDS
 ```{r}
-movies <- read.csv(file = "P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/IMDB-Movie-Data.csv")
+#movies <- read.csv(file = "P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/IMDB-Movie-Data.csv")
+movies <- read.csv(file = "P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/OriginalDS/IMDB-Movie-Data.csv")
 attach(movies)
 slr <- lm(Rank ~ Revenue..Millions.) 
 summary(slr)
 ```
 
+## Splitting genre
+```{r}
+View(movies[,3])
 
+```
+
+
+
+```{r, eval=FALSE}
+library(MASS)
+movies <- read.csv(file = "P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/OriginalDS/IMDB-Movie-Data.csv")
+#attach(movies)
+#View(movies)
+mylda <- lda(Rating ~ Revenue..Millions.+Runtime..Minutes. + Metascore ,data=movies)
+table(movies$Rating, predict(mylda)$class)
+#mylda
+```
 
 
 ##Classification tree

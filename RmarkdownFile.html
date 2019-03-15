@@ -192,7 +192,9 @@ $(document).ready(function () {
 </div>
 
 
-<pre class="r"><code>movies &lt;- read.csv(file = &quot;P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/IMDB-Movie-Data.csv&quot;)
+<p>P:4311-data-from-2006-to-2016</p>
+<pre class="r"><code>#movies &lt;- read.csv(file = &quot;P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/IMDB-Movie-Data.csv&quot;)
+movies &lt;- read.csv(file = &quot;P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/OriginalDS/IMDB-Movie-Data.csv&quot;)
 attach(movies)
 slr &lt;- lm(Rank ~ Revenue..Millions.) 
 summary(slr)</code></pre>
@@ -215,6 +217,17 @@ summary(slr)</code></pre>
 ##   (128 observations deleted due to missingness)
 ## Multiple R-squared:  0.07376,    Adjusted R-squared:  0.0727 
 ## F-statistic: 69.28 on 1 and 870 DF,  p-value: 3.283e-16</code></pre>
+<div id="splitting-genre" class="section level2">
+<h2>Splitting genre</h2>
+<pre class="r"><code>View(movies[,3])</code></pre>
+<pre class="r"><code>library(MASS)
+movies &lt;- read.csv(file = &quot;P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/OriginalDS/IMDB-Movie-Data.csv&quot;)
+#attach(movies)
+#View(movies)
+mylda &lt;- lda(Rating ~ Revenue..Millions.+Runtime..Minutes. + Metascore ,data=movies)
+table(movies$Rating, predict(mylda)$class)
+#mylda</code></pre>
+</div>
 <div id="classification-tree" class="section level2">
 <h2>Classification tree</h2>
 <pre class="r"><code>library(tree)</code></pre>
