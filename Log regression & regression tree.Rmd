@@ -24,6 +24,10 @@ colSums(is.na(movies))
 NewMovieDS <- na.omit(movies)
 any(is.na(NewMovieDS))
 nrow(NewMovieDS)
+
+train<-sample (1: nrow(NewMovieDS), nrow(NewMovieDS)/2)
+
+movtest <- NewMovieDS[-train, ]
 ```
 
 ## Logistic regression
@@ -33,6 +37,12 @@ simlog<-glm(factor(Rating)~Year+Votes+Metascore,data=NewMovieDS, family=binomial
 #table(predict(simlog, type="response")>0.5, factor(Ratings)
 summary(simlog)
 summary(simlog)$coef
+
+logTest<-glm(factor(Rating)~Year+Votes+Metascore,data=NewMovieDS, family=binomial, subset=train)
+logPred <-predict(logTest,factor(movtest$Rating), type="response")
+#table(logPred>0.5, factor(movtest$Ratings))
+movTest = NewMovieDS[-train, "Rating"]
+mean(logPred==movTest)
 ```
 Logistic doesn't look to good at predicting rating (this is after I got rid of the predictors with the worst p values)
 
@@ -41,6 +51,11 @@ For rank
 simlog2<-glm(factor(Rank)~+Year+Runtime..Minutes.+Votes,data=NewMovieDS, family=binomial)
 summary(simlog2)
 summary(simlog2)$coef
+logTest2<-glm(factor(Rank)~+Year+Runtime..Minutes.+Votes,data=NewMovieDS, family=binomial, subset=train)
+logPred2<-predict(logTest2,factor(movtest$Rank), type="response")
+#table(logPred>0.5, factor(movtest$Ratings))
+movTest2 = NewMovieDS[-train, "Rank"]
+mean(logPred2==movTest2)
 ```
 Not to bad for rank. p value of Year increases if runtime is taken out
 
@@ -49,6 +64,12 @@ FOr Genre
 simlog3<-glm(factor(Genre)~Rank+Rating+Votes+Revenue..Millions.+Metascore,data=NewMovieDS, family=binomial)
 summary(simlog3)
 summary(simlog3)$coef
+
+logTest3<-glm(factor(Genre)~Rank+Rating+Votes+Revenue..Millions.+Metascore,data=NewMovieDS, family=binomial, subset=train)
+logPred3<-predict(simlog3, type="response")
+#table(logPred3>0.5, Genre)
+movTest3 = NewMovieDS[-train, "Genre"]
+mean(logPred3==movTest3)
 ```
 Logistic regression seems to be fairly good at predicting genre as all p values look to be significatn (except runtime)
 
@@ -81,5 +102,318 @@ For MetaScore
 simlog7<-glm(factor(Metascore)~Rank+Runtime..Minutes.+Rating+Votes,data=NewMovieDS, family=binomial)
 summary(simlog7)
 summary(simlog7)$coef
+```
+
+##Regression tree
+
+```{r}
+library(tree)
+library(MASS)
+set.seed(1)
+
+treeMove<- tree(NewMovieDS$Rating~Rank+Genre+Year+Runtime..Minutes.+Votes+Revenue..Millions.+Metascore,NewMovieDS)
+summary(treeMove)
+plot(treeMove)
+text(treeMove, pretty=0)
+
+cvMove<- cv.tree(treeMove)
+summary(cvMove)
+plot(cvMove)
+
+pruneMove <- prune.tree(treeMove, best =8)
+plot(pruneMove)
+text(pruneMove, pretty=0)
+
+
+
+treeMove2<- tree(NewMovieDS$Rating~Rank+Genre+Year+Runtime..Minutes.+Votes+Revenue..Millions.+Metascore,NewMovieDS, subset=train)
+summary(treeMove2)
+plot(treeMove2)
+text(treeMove2, pretty=0)
+
+yhat<- predict(treeMove2, newdata=movtest)
+MoveTest<- NewMovieDS[-train, "Rating"]
+
+mean((yhat-MoveTest)^2)
+```
+MSE is 0.4282526 so this tree predicts rating within .65 of the true response. Which is not bad.
+
+
+For Rank
+
+```{r}
+treeMove3<- tree(NewMovieDS$Rank~Rating+Genre+Year+Runtime..Minutes.+Votes+Revenue..Millions.+Metascore,NewMovieDS)
+summary(treeMove3)
+plot(treeMove3)
+text(treeMove3, pretty=0)
+
+cvMove2<- cv.tree(treeMove3)
+summary(cvMove2)
+plot(cvMove2)
+
+pruneMove2 <- prune.tree(treeMove3, best =6)
+plot(pruneMove2)
+text(pruneMove2, pretty=0)
+
+
+
+treeMove4<- tree(NewMovieDS$Rank~Rating+Genre+Year+Runtime..Minutes.+Votes+Revenue..Millions.+Metascore,NewMovieDS, subset=train)
+summary(treeMove4)
+plot(treeMove4)
+text(treeMove4, pretty=0)
+
+yhat2<- predict(treeMove4, newdata=movtest)
+MoveTest2<- NewMovieDS[-train, "Rank"]
+
+mean((yhat2-MoveTest2)^2)
+```
+MSE is 51034.16 so this tree predicts rank within 225.9 of the true response. Not very good
+
+
+For genre
+```{r}
+treeMove5<- tree(NewMovieDS$Genre~Rank+Year+Runtime..Minutes.+Rating+Votes+Revenue..Millions.+Metascore,NewMovieDS)
+summary(treeMove5)
+plot(treeMove5)
+text(treeMove5, pretty=0)
+
+cvMove3<- cv.tree(treeMove5)
+summary(cvMove3)
+plot(cvMove3)
+
+pruneMove3 <- prune.tree(treeMove5, best =6)
+plot(pruneMove3)
+text(pruneMove3, pretty=0)
+
+
+
+treeMove6<- tree(NewMovieDS$Genre~Rank+Year+Runtime..Minutes.+Rating+Votes+Revenue..Millions.+Metascore,NewMovieDS, subset=train)
+summary(treeMove6)
+plot(treeMove6)
+text(treeMove6, pretty=0)
+
+yhat3<- predict(treeMove6, newdata=movtest)
+MoveTest3<- NewMovieDS[-train, "Genre"]
+
+mean((yhat3-MoveTest3)^2)
+```
+MSE is NA which makes sense as genre is catagorical so a regression tree is not a good method of prediction
+
+
+FOr revenue
+```{r}
+treeMove7<- tree(NewMovieDS$Revenue..Millions.~Rank+Genre+Year+Runtime..Minutes.+Rating+Votes+Metascore,NewMovieDS)
+summary(treeMove7)
+plot(treeMove7)
+text(treeMove7, pretty=0)
+
+cvMove4<- cv.tree(treeMove7)
+summary(cvMove4)
+plot(cvMove4)
+
+pruneMove4 <- prune.tree(treeMove7, best =7)
+plot(pruneMove4)
+text(pruneMove4, pretty=0)
+
+
+
+treeMove8<- tree(NewMovieDS$Revenue..Millions.~Rank+Genre+Year+Runtime..Minutes.+Rating+Votes+Metascore,NewMovieDS, subset=train)
+summary(treeMove8)
+plot(treeMove8)
+text(treeMove8, pretty=0)
+
+yhat4<- predict(treeMove8, newdata=movtest)
+MoveTest4<- NewMovieDS[-train, "Revenue..Millions."]
+
+mean((yhat4-MoveTest4)^2)
+```
+MSE for revenue is 6791.951 so this tree predicts revenue within 82.41 of the true response.This is not very good but given the large variation of the revenue data its hard to tell
+if this is bad.
+
+
+For runtime
+```{r}
+treeMove9<- tree(NewMovieDS$Runtime..Minutes.~Rank+Genre+Year+Rating+Votes+Revenue..Millions.+Metascore,NewMovieDS)
+summary(treeMove9)
+plot(treeMove9)
+text(treeMove9, pretty=0)
+
+cvMove5<- cv.tree(treeMove9)
+summary(cvMove5)
+plot(cvMove5)
+
+pruneMove5 <- prune.tree(treeMove9, best =7)
+plot(pruneMove5)
+text(pruneMove5, pretty=0)
+
+
+
+treeMove10<- tree(NewMovieDS$Runtime..Minutes.~Rank+Genre+Year+Rating+Votes+Revenue..Millions.+Metascore,NewMovieDS, subset=train)
+summary(treeMove10)
+plot(treeMove10)
+text(treeMove10, pretty=0)
+
+yhat5<- predict(treeMove10, newdata=movtest)
+MoveTest5<- NewMovieDS[-train, "Runtime..Minutes."]
+
+mean((yhat5-MoveTest5)^2)
+```
+MSE for runtime is 327.63 so this tree predicts runtime to within 18.1 minutes. This is not a bad prediction of the runtime
+
+
+for votes
+```{r}
+treeMove11<- tree(NewMovieDS$Votes~Rank+Genre+Year+Runtime..Minutes.+Rating+Revenue..Millions.+Metascore,NewMovieDS)
+summary(treeMove11)
+plot(treeMove11)
+text(treeMove11, pretty=0)
+
+cvMove6<- cv.tree(treeMove11)
+summary(cvMove6)
+plot(cvMove6)
+
+pruneMove6 <- prune.tree(treeMove11, best =7)
+plot(pruneMove6)
+text(pruneMove6, pretty=0)
+
+
+
+treeMove12<- tree(NewMovieDS$Votes~Rank+Genre+Year+Runtime..Minutes.+Rating+Revenue..Millions.+Metascore,NewMovieDS, subset=train)
+summary(treeMove12)
+plot(treeMove12)
+text(treeMove12, pretty=0)
+
+yhat6<- predict(treeMove12, newdata=movtest)
+MoveTest6<- NewMovieDS[-train, "Votes"]
+
+mean((yhat6-MoveTest6)^2)
+```
+MSE for runtime is 19079568696 so this tree predicts votes to within 138128.811 votes. Even with the large variance in votes data this prediction is quite bad and shows that a regression tree likely does not work for this response variable
+
+
+for metascore
+```{r}
+treeMove13<- tree(NewMovieDS$Metascore~Rank+Genre+Year+Runtime..Minutes.+Rating+Votes+Revenue..Millions.,NewMovieDS)
+summary(treeMove13)
+plot(treeMove13)
+text(treeMove13, pretty=0)
+
+cvMove7<- cv.tree(treeMove13)
+summary(cvMove7)
+plot(cvMove7)
+
+pruneMove7 <- prune.tree(treeMove13, best =4)
+plot(pruneMove7)
+text(pruneMove7, pretty=0)
+
+
+
+treeMove14<- tree(NewMovieDS$Metascore~Rank+Genre+Year+Runtime..Minutes.+Rating+Votes+Revenue..Millions.,NewMovieDS, subset=train)
+summary(treeMove14)
+plot(treeMove14)
+text(treeMove14, pretty=0)
+
+yhat7<- predict(treeMove14, newdata=movtest)
+MoveTest7<- NewMovieDS[-train, "Metascore"]
+
+mean((yhat7-MoveTest7)^2)
+```
+MSE for metascore is 152.9769 so this tree predicts metascore within 12.37 points. While this might not be the best model for predicting metascore it is not bad.
+
+
+##Boosting
+For rating
+```{r}
+library(gbm)
+library(gclus)
+rain<-sample (1: nrow(NewMovieDS), nrow(NewMovieDS)/2)
+lMovie <-NewMovieDS[rain,]
+move <- NewMovieDS[-train, ]
+moveBoost<-gbm(Rating~Rank+Genre+Year+Runtime..Minutes.+Votes+Revenue..Millions.+Metascore,distribution="gaussian", data=lMovie, n.trees=5000, interaction.depth=1)
+summary(moveBoost)
+table(lMovie$Rating, predict(moveBoost, newdata=lMovie, type="response", n.trees=5000)>0.5 )
+
+
+yhatBoost<-predict(moveBoost, newdata=movtest,n.trees=5000)
+boostMoveTest<- NewMovieDS[-train, "Rating"]
+mean((yhatBoost-boostMoveTest)^2)
+```
+
+
+For Rank
+```{r}
+moveBoost2<-gbm(Rank~Genre+Year+Runtime..Minutes.+Rating+Votes+Revenue..Millions.+Metascore,distribution="gaussian", data=lMovie, n.trees=5000, interaction.depth=1)
+summary(moveBoost2)
+table(lMovie$Rank, predict(moveBoost2, newdata=lMovie, type="response", n.trees=5000)>0.5 )
+
+
+yhatBoost2<-predict(moveBoost2, newdata=movtest,n.trees=5000)
+boostMoveTest2<- NewMovieDS[-train, "Rank"]
+mean((yhatBoost2-boostMoveTest2)^2)
+```
+
+
+For Genre
+```{r}
+moveBoost3<-gbm(Genre~Rank+Year+Runtime..Minutes.+Rating+Votes+Revenue..Millions.+Metascore,distribution="gaussian", data=lMovie, n.trees=5000, interaction.depth=1)
+summary(moveBoost3)
+table(lMovie$Genre, predict(moveBoost3, newdata=lMovie, type="response", n.trees=5000)>0.5 )
+
+
+yhatBoost3<-predict(moveBoost3, newdata=movtest,n.trees=5000)
+boostMoveTest3<- NewMovieDS[-train, "Genre"]
+mean((yhatBoost3-boostMoveTest3)^2)
+```
+
+
+For Revenue
+```{r}
+moveBoost4<-gbm(Revenue..Millions.~Rank+Genre+Year+Runtime..Minutes.+Rating+Votes+Metascore,distribution="gaussian", data=lMovie, n.trees=5000, interaction.depth=1)
+summary(moveBoost4)
+table(lMovie$Revenue..Millions., predict(moveBoost4, newdata=lMovie, type="response", n.trees=5000)>0.5 )
+
+
+yhatBoost4<-predict(moveBoost4, newdata=movtest,n.trees=5000)
+boostMoveTest4<- NewMovieDS[-train, "Revenue..Millions."]
+mean((yhatBoost4-boostMoveTest4)^2)
+```
+
+
+For runttime
+```{r}
+moveBoost5<-gbm(Runtime..Minutes.~Rank+Genre+Year+Rating+Votes+Revenue..Millions.+Metascore,distribution="gaussian", data=lMovie, n.trees=5000, interaction.depth=1)
+summary(moveBoost5)
+table(lMovie$Runtime..Minutes, predict(moveBoost5, newdata=lMovie, type="response", n.trees=5000)>0.5 )
+
+
+yhatBoost5<-predict(moveBoost5, newdata=movtest,n.trees=5000)
+boostMoveTest5<- NewMovieDS[-train, "Runtime..Minutes."]
+mean((yhatBoost5-boostMoveTest5)^2)
+```
+
+
+For votes
+```{r}
+moveBoost6<-gbm(Votes~Rank+Genre+Year+Runtime..Minutes.+Rating+Revenue..Millions.+Metascore,distribution="gaussian", data=lMovie, n.trees=5000, interaction.depth=1)
+summary(moveBoost6)
+table(lMovie$Votes, predict(moveBoost6, newdata=lMovie, type="response", n.trees=5000)>0.5 )
+
+
+yhatBoost6<-predict(moveBoost6, newdata=movtest,n.trees=5000)
+boostMoveTest6<- NewMovieDS[-train, "Votes"]
+mean((yhatBoost6-boostMoveTest6)^2)
+```
+
+
+For metascore
+```{r}
+moveBoost7<-gbm(Metascore~Rank+Genre+Year+Runtime..Minutes.+Rating+Votes+Revenue..Millions.,distribution="gaussian", data=lMovie, n.trees=5000, interaction.depth=1)
+summary(moveBoost7)
+table(lMovie$Metascore, predict(moveBoost7, newdata=lMovie, type="response", n.trees=5000)>0.5 )
+
+
+yhatBoost7<-predict(moveBoost7, newdata=movtest,n.trees=5000)
+boostMoveTest7<- NewMovieDS[-train, "Metascore"]
+mean((yhatBoost7-boostMoveTest7)^2)
 ```
 
