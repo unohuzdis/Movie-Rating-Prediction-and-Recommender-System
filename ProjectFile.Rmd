@@ -1,7 +1,7 @@
 ---
-title: "ProjectFile"
-author: "Pardeep"
-date: "March 14, 2019"
+title: "Project311"
+author: "Pardeep Rathore + 71364251"
+date: "March 11, 2019"
 output: html_document
 ---
 
@@ -11,8 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 movies <- read.csv(file = "P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/IMDB-Movie-Data.csv")
+#movies
 attach(movies)
-View(movies)
 slr <- lm(Rank ~ Revenue..Millions.) 
 summary(slr)
 ```
@@ -20,31 +20,52 @@ summary(slr)
 ## Fixing NA values
 varibale named NewMovieDS has no NA values
 ```{r}
-
 any(is.na(movies))
-sum(is.na(movies))
-colSums(is.na(movies))
-NewMovieDS <- na.omit(movies)
-any(is.na(NewMovieDS))
-nrow(NewMovieDS)
-NewMovieDS2 <- movies[complete.cases(movies),]
-nrow(NewMovieDS2)
-View(NewMovieDS)
+#sum(is.na(movies))
+#colSums(is.na(movies))
+New_MovieDS <- na.omit(movies)
+any(is.na(New_MovieDS))
+#nrow(NewMovieDS)
+#NewMovieDS2 <- movies[complete.cases(movies),]
+#nrow(NewMovieDS2)
+#View(NewMovieDS)
+```
+
+##Creating training and testing datasets
+```{r}
+#Splitiing dataset into training and testing
+ind <- sample(2, nrow(New_MovieDS), replace = TRUE, prob = c(0.5,0.5))
+train.data = New_MovieDS[ind==1,]
+test.data = New_MovieDS[ind==2,]
+
+#View(NewMovieDS)
+#newGenre <- gsub(",.*","", NewMovieDS[,3])
+#newGenre
+#genre
+
 ```
 
 
+```{r}
+library(MASS)
+attach(New_MovieDS)
+ldafit <- lda(Revenue..Millions. ~ Rank + Runtime..Minutes., data=New_MovieDS )
+#ldafit
+#ldapred <- predict(ldafit,NewMovieDS)
+#ldaClass <- ldapred$class
+#table(ldaClass,NewMovieDS$Revenue..Millions.)
+```
 
 
 ##Classification tree
 ```{r}
 library(tree)
 library(gclus)
-movies <- read.csv(file = "P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/IMDB-Movie-Data.csv")
 #attach(movies)
-data(movies)
+data(New_MovieDS)
 set.seed(12412)
-movies$Genre <- factor(movies$Genre)
-bod <- data.frame(movies)
+New_MovieDS$Genre <- factor(New_MovieDS$Genre)
+bod <- data.frame(New_MovieDS)
 bocl <- tree(Genre~ Rank+Runtime..Minutes.+Rating+Votes+Revenue..Millions.+Metascore , data=bod)
 plot(bocl)
 text(bocl)
