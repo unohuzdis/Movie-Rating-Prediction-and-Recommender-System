@@ -10,8 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-movies <- read.csv(file = "P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/IMDB-Movie-Data.csv")
-#movies
+movies<- read.csv(file = "P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/OriginalDS/IMDB-Movie-Data.csv")
+names(movies)
 attach(movies)
 slr <- lm(Rank ~ Revenue..Millions.) 
 summary(slr)
@@ -34,15 +34,21 @@ any(is.na(New_MovieDS))
 ##Creating training and testing datasets
 ```{r}
 #Splitiing dataset into training and testing
-ind <- sample(2, nrow(New_MovieDS), replace = TRUE, prob = c(0.5,0.5))
-train.data = New_MovieDS[ind==1,]
-test.data = New_MovieDS[ind==2,]
+#ind <- sample(2, nrow(New_MovieDS), replace = TRUE, prob = c(0.5,0.5))
+#train.data = New_MovieDS[ind==1,]
+#test.data = New_MovieDS[ind==2,]
+
+train <- sample(1:nrow(New_MovieDS), nrow(New_MovieDS)/2)
+test <- -train
+train.data <- New_MovieDS[train,]
+test.data <- New_MovieDS[test,]
+
 
 #View(NewMovieDS)
-#newGenre <- gsub(",.*","", NewMovieDS[,3])
+New_MovieDS$NewGenre <- gsub(",.*","", New_MovieDS[,3])
 #newGenre
 #genre
-
+names(New_MovieDS)
 ```
 
 
@@ -64,9 +70,9 @@ library(gclus)
 #attach(movies)
 data(New_MovieDS)
 set.seed(12412)
-New_MovieDS$Genre <- factor(New_MovieDS$Genre)
+New_MovieDS$NewGenre <- factor(New_MovieDS$NewGenre)
 bod <- data.frame(New_MovieDS)
-bocl <- tree(Genre~ Rank+Runtime..Minutes.+Rating+Votes+Revenue..Millions.+Metascore , data=bod)
+bocl <- tree(NewGenre ~ Rank+Runtime..Minutes.+Rating+Votes+Revenue..Millions.+Metascore , data=bod)
 plot(bocl)
 text(bocl)
 ```
@@ -84,3 +90,17 @@ plot(p.bocl)
 text(p.bocl)
 summary(p.bocl)
 ```
+
+##Random Forest
+```{r}
+library(randomForest)
+library(caret)
+set.seed(12)
+RandomForest <-randomForest(Revenue..Millions. ~ Runtime..Minutes. + Rating + Votes + Rank + Metascore ,data= train.data,importance=TRUE)
+RandomForest
+p1 <- predict(RandomForest,test.data)
+mean((p1-test.data$Revenue..Millions.)^2)
+plot(RandomForest)
+varImpPlot(RandomForest)
+```
+
