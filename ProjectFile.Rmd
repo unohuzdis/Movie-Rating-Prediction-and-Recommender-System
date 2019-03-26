@@ -52,15 +52,7 @@ names(New_MovieDS)
 ```
 
 
-```{r}
-library(MASS)
-attach(New_MovieDS)
-ldafit <- lda(Revenue..Millions. ~ Rank + Runtime..Minutes., data=New_MovieDS )
-#ldafit
-#ldapred <- predict(ldafit,NewMovieDS)
-#ldaClass <- ldapred$class
-#table(ldaClass,NewMovieDS$Revenue..Millions.)
-```
+
 
 
 ##Classification tree
@@ -102,5 +94,57 @@ p1 <- predict(RandomForest,test.data)
 mean((p1-test.data$Revenue..Millions.)^2)
 plot(RandomForest)
 varImpPlot(RandomForest)
+```
+
+##Clustering
+```{r}
+#Scatter plot
+plot(Revenue..Millions.~ Votes)
+with(New_MovieDS,text(Revenue..Millions.~ Votes, label = NewGenre, pos= 4, cex = .4))
+
+#Normalization
+z <- New_MovieDS[,-c(2,3,4,5,6,7,13)]
+m <- apply(z, 2, mean)
+s <- apply(z, 2, sd)
+z <- scale(z,m,s)
+
+#calculating Euclidean Distance
+distance <- dist(z)
+#print(distance,digits = 3)
+
+
+#Cluster Dendrogram with complete linkage
+hc.c <- hclust(distance)
+plot(hc.c, label= New_MovieDS$NewGenre)
+plot(hc.c, label= New_MovieDS$NewGenre,hang = -1)
+
+##Clustering Dendrogram with average Linkage
+hc.a <- hclust(distance, method = "average")
+plot(hc.a, label= New_MovieDS$NewGenre)
+plot(hc.a, label= New_MovieDS$NewGenre,hang = -1)
+
+##Clsuter Membership
+member.c <- cutree(hc.c,3)
+member.a <- cutree(hc.a,3)
+table(member.c,member.a)
+
+
+##Cluster Mean
+aggregate(z,list(member.c),mean)
+aggregate(New_MovieDS[,-c(2,3,4,5,6,7,13)], list(member.c),mean)
+
+##ScreePlot
+WSS <- (nrow(z)-1)*sum(apply(z,2,var))
+for(i in 2:20) WSS[i] <- sum(kmeans(z,centers=i)$withinss)
+plot(1:20, WSS, type = "b", xlab = "Number of Clusters", ylab = "Within Group SS")
+
+```
+
+
+##Kmeans
+```{r}
+Kc <- kmeans(New_MovieDS[,-c(2,3,4,5,6,7,13)],3)
+Kc
+plot(Revenue..Millions.~ Votes, New_MovieDS , col = Kc$cluster)
 ```
 
