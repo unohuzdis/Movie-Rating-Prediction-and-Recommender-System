@@ -2,18 +2,21 @@
 title: "LDA/QDA"
 author: "Vaibhav"
 date: '2019-03-14'
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+##Dataset
 ```{r}
-movies <- read.csv(file = "IMDB-Movie-Data.csv")
-attach(movies)
-slr <- lm(Rank ~ Revenue..Millions.) 
-summary(slr)
+movies <- read.csv("IMDB-Movie-Data.csv")
+#attach(movies)
+View(movies)
 ```
 
 ## Fixing NA values
@@ -26,24 +29,103 @@ colSums(is.na(movies))
 NewMovieDS <- na.omit(movies)
 any(is.na(NewMovieDS))
 nrow(NewMovieDS)
+NewMovieDS2 <- movies[complete.cases(movies),]
+nrow(NewMovieDS2)
+View(NewMovieDS)
+
 ```
 
-## LDA
+## Splitting into test and training 
+
+```{r}
+#Splitiing dataset into training and testing
+#ind <- sample(2, nrow(New_MovieDS), replace = TRUE, prob = c(0.5,0.5))
+#train.data = New_MovieDS[ind==1,]
+#test.data = New_MovieDS[ind==2,]
+train <- sample(1:nrow(NewMovieDS), nrow(NewMovieDS)/2)
+test <- -train
+train.data <- NewMovieDS[train,]
+test.data <- NewMovieDS[test,]
+
+
+#View(NewMovieDS)
+NewMovieDS$NewGenre <- gsub(",.*","", NewMovieDS[,3])
+#newGenre
+#genre
+names(NewMovieDS)
+```
+
+
+## LDA 
+```{r}
+library(MASS)
+library(ISLR)
+
+
+# rating: Classification Error (CE) = 0.9713604
+ratinglda <- lda(train.data$Rating~train.data$Revenue..Millions., data = train.data)
+mean(predict(ratinglda)$class != test.data$Rating)
+
+# title: CE: 0.725537
+titlelda <- lda(train.data$Title~train.data$Revenue..Millions., data = train.data)
+mean(predict(titlelda)$class != test.data$Title)
+
+#genre: CE: 1
+genrelda <- lda(train.data$Genre~train.data$Revenue..Millions., data = train.data)
+mean(predict(genrelda)$class != test.data$Genre)
+
+#year: CE: 0.7756563
+yearlda <- lda(train.data$Year~train.data$Revenue..Millions., data = train.data)
+mean(predict(yearlda)$class != test.data$Year)
+
+#runtime: CE: 0.9880668
+runtimelda <- lda(train.data$Runtime..Minutes.~train.data$Revenue..Millions., data = train.data)
+mean(predict(runtimelda)$class != test.data$Runtime..Minutes.)
+
+#votes: CE: 1
+
+titlelda <- lda(train.data$Title~train.data$Revenue..Millions., data = train.data)
+mean(predict(titlelda)$class != test.data$Title)
+
+#metascore: CE: 0.9856802
+metascorelda <- lda(train.data$Metascore~train.data$Revenue..Millions., data = train.data)
+mean(predict(metascorelda)$class != test.data$Metascore)
+
+```
+
+#QDA
 
 ```{r}
 library(MASS)
-movies <- read.csv(file = "IMDB-Movie-Data.csv")
-attach(movies)
-mylda <- lda(Rank ~ Revenue..Millions.)
+with(train.data,table(Rating))
+
+#year: CE: 0.778043
+yearqda <- qda(train.data$Year~train.data$Revenue..Millions., data = train.data)
+mean(predict(yearqda)$class != test.data$Year)
+
+# rating
+ratingqda <- qda(Rating~Revenue..Millions., data = NewMovieDS)
+mean(predict(ratingqda)$class != test.data$Rating)
+
+#title
+titleqda <- qda(train.data$Title~train.data$Revenue..Millions., data = train.data)
+mean(predict(titleqda)$class != test.data$Title)
+
+#genre
+genreqda <- qda(train.data$Genre~train.data$Revenue..Millions., data = train.data)
+mean(predict(genreqda)$class != test.data$Genre)
+
+#runtime
+runtimeqda <- qda(train.data$Runtime..Minutes.~train.data$Revenue..Millions., data = train.data)
+mean(predict(runtimeqda)$class != test.data$Runtime..Minutes.)
+
+#votes
+titleqda <- qda(train.data$Title~train.data$Revenue..Millions., data = train.data)
+mean(predict(titleqda)$class != test.data$Title)
+
+#metascore
+metascoreqda <- qda(train.data$Metascore~train.data$Revenue..Millions., data = train.data)
+mean(predict(metascoreqda)$class != test.data$Metascore)
 
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
