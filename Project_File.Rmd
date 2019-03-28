@@ -13,22 +13,20 @@ knitr::opts_chunk$set(echo = TRUE)
 movies<- read.csv(file = "P:/Term4/DATA311/Project/imdb-data-from-2006-to-2016/OriginalDS/IMDB-Movie-Data.csv")
 names(movies)
 attach(movies)
-slr <- lm(Rank ~ Revenue..Millions.) 
-summary(slr)
 ```
 
 ## Fixing NA values
-varibale named NewMovieDS has no NA values
+varibale named New_MovieDS has no NA values
 ```{r}
 any(is.na(movies))
 #sum(is.na(movies))
 #colSums(is.na(movies))
 New_MovieDS <- na.omit(movies)
 any(is.na(New_MovieDS))
-#nrow(NewMovieDS)
-#NewMovieDS2 <- movies[complete.cases(movies),]
-#nrow(NewMovieDS2)
-#View(NewMovieDS)
+#nrow(New_MovieDS)
+#New_MovieDS2 <- movies[complete.cases(movies),]
+#nrow(New_MovieDS2)
+#View(New_MovieDS)
 ```
 
 ##Creating training and testing datasets
@@ -37,14 +35,14 @@ any(is.na(New_MovieDS))
 #ind <- sample(2, nrow(New_MovieDS), replace = TRUE, prob = c(0.5,0.5))
 #train.data = New_MovieDS[ind==1,]
 #test.data = New_MovieDS[ind==2,]
-
+set.seed(1234)
 train <- sample(1:nrow(New_MovieDS), nrow(New_MovieDS)/2)
 test <- -train
 train.data <- New_MovieDS[train,]
 test.data <- New_MovieDS[test,]
 
 
-#View(NewMovieDS)
+#View(New_MovieDS)
 New_MovieDS$NewGenre <- gsub(",.*","", New_MovieDS[,3])
 #newGenre
 #genre
@@ -145,6 +143,116 @@ plot(1:20, WSS, type = "b", xlab = "Number of Clusters", ylab = "Within Group SS
 ```{r}
 Kc <- kmeans(New_MovieDS[,-c(2,3,4,5,6,7,13)],3)
 Kc
-plot(Revenue..Millions.~ Votes, New_MovieDS , col = Kc$cluster)
+plot(Rating ~ Revenue..Millions., New_MovieDS , col = Kc$cluster)
+plot(Revenue..Millions. ~ Votes, New_MovieDS , col = Kc$cluster)
+plot(Rating ~ Votes, New_MovieDS , col = Kc$cluster)
+plot(Rating ~ Runtime..Minutes. , New_MovieDS , col = Kc$cluster)
+```
+
+
+##Linear Regression
+```{r}
+library(MASS)
+slr <- lm(Rating ~ Votes, data = New_MovieDS) 
+slr2 <- lm(Revenue..Millions. ~ Votes, data = New_MovieDS)
+plot(slr)
+sresid <- studres(slr) 
+hist(sresid, freq=FALSE, 
+   main="Distribution of Studentized Residuals")
+#curve(dnorm,-5,5,add=T,col="blue")
+
+xfit<-seq(min(sresid),max(sresid),length=40) 
+yfit<-dnorm(xfit) 
+lines(xfit, yfit)
+mean(slr$residuals^2)
+mean(slr2$residuals^2)
+summary(slr)
+summary(slr2)
+```
+
+
+##Multiple Linear Regression
+```{r}
+#attach(New_MovieDS)
+mlr <- lm(Rating ~  Votes + Runtime..Minutes.+Revenue..Millions.+Metascore+Rank)
+mlr2 <- lm(Rating ~  Votes + Runtime..Minutes.+Revenue..Millions.+Metascore)
+summary(mlr)
+summary(mlr2)
+```
+
+
+##Lasso
+```{r}
+library(ISLR)
+library(glmnet)
+library(plotmo)
+
+set.seed(1234)
+x = model.matrix(Rating ~  Votes + Runtime..Minutes.+Revenue..Millions.+Metascore+Rank, data = New_MovieDS)
+y = New_MovieDS$Rating
+
+
+rrsim_d <- cv.glmnet(x, y, alpha=0)
+plot(rrsim_d$glmnet.fit, label=TRUE, xvar="lambda")
+plot(rrsim_d)
+rrsim_d$lambda.min
+
+set.seed(451642)
+rrsim <- cv.glmnet(x, y, alpha=0)
+plot(rrsim$glmnet.fit, label=TRUE, xvar="lambda")
+plot(rrsim)
+rrsim$lambda.min
+
+
+
+
+
+
+
+
+
+```
+
+
+
+```{r}
+lammin <- rrsim$lambda.min
+lam1se <- rrsim$lambda.1se
+rrsimmin <- glmnet(x,y,alpha = 0, lambda=lammin)
+rrsim1se <- glmnet(x,y,alpha = 0, lambda=lam1se)
+coef(rrsimmin)
+coef(rrsim1se)
+```
+
+
+
+```{r}
+coeftab <- cbind(coef(mlr), coef(rrsimmin), coef(rrsim1se))
+colnames(coeftab) <- c("LM", "RidgeRegMin", "RidgeReg1se")
+round(coeftab,5)
+```
+
+
+
+
+```{r}
+lasim <- cv.glmnet(x, y, alpha=1)
+plot(lasim$glmnet.fit, label=TRUE, xvar="lambda")
+plot(lasim)
+lammin <- lasim$lambda.min
+lam1se <- lasim$lambda.1se
+lasimmin <- glmnet(x,y,alpha = 1, lambda=lammin)
+lasim1se <- glmnet(x,y,alpha = 1, lambda=lam1se)
+coef(lasimmin)
+coef(lasim1se)
+```
+
+
+
+```{r}
+coeftab <- cbind(coef(mlr), coef(rrsimmin), coef(lasimmin))
+colnames(coeftab) <- c("LM", "RidgeRegMin", "LassoMin")
+round(coeftab,5)
+
 ```
 
