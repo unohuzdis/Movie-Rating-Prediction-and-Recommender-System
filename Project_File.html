@@ -644,22 +644,12 @@ summary(mlr)</code></pre>
 </div>
 <div id="lasso" class="section level2">
 <h2>Lasso</h2>
-<pre class="r"><code>library(ISLR)</code></pre>
-<pre><code>## Warning: package 'ISLR' was built under R version 3.5.3</code></pre>
 <pre class="r"><code>library(glmnet)</code></pre>
 <pre><code>## Warning: package 'glmnet' was built under R version 3.5.3</code></pre>
 <pre><code>## Loading required package: Matrix</code></pre>
 <pre><code>## Loading required package: foreach</code></pre>
 <pre><code>## Warning: package 'foreach' was built under R version 3.5.3</code></pre>
 <pre><code>## Loaded glmnet 2.0-16</code></pre>
-<pre class="r"><code>library(plotmo)</code></pre>
-<pre><code>## Warning: package 'plotmo' was built under R version 3.5.3</code></pre>
-<pre><code>## Loading required package: Formula</code></pre>
-<pre><code>## Warning: package 'Formula' was built under R version 3.5.2</code></pre>
-<pre><code>## Loading required package: plotrix</code></pre>
-<pre><code>## Warning: package 'plotrix' was built under R version 3.5.2</code></pre>
-<pre><code>## Loading required package: TeachingDemos</code></pre>
-<pre><code>## Warning: package 'TeachingDemos' was built under R version 3.5.3</code></pre>
 <pre class="r"><code>set.seed(1234)
 x = model.matrix(Rating ~  Votes + Runtime..Minutes.+Revenue..Millions.+Metascore+Rank, data = New_MovieDS)
 y = New_MovieDS$Rating

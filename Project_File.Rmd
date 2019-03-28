@@ -183,9 +183,7 @@ summary(mlr2)
 
 ##Lasso
 ```{r}
-library(ISLR)
 library(glmnet)
-library(plotmo)
 
 set.seed(1234)
 x = model.matrix(Rating ~  Votes + Runtime..Minutes.+Revenue..Millions.+Metascore+Rank, data = New_MovieDS)
