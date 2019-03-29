@@ -17,7 +17,7 @@ summary(slr)
 ## Fixing NA values
 varibale named NewMovieDS has no NA values
 ```{r}
-
+set.seed(1546)
 any(is.na(movies))
 sum(is.na(movies))
 colSums(is.na(movies))
@@ -109,7 +109,7 @@ summary(simlog7)$coef
 ```{r}
 library(tree)
 library(MASS)
-set.seed(1)
+
 
 treeMove<- tree(NewMovieDS$Rating~Rank+Genre+Year+Runtime..Minutes.+Votes+Revenue..Millions.+Metascore,NewMovieDS)
 summary(treeMove)
@@ -136,7 +136,7 @@ MoveTest<- NewMovieDS[-train, "Rating"]
 
 mean((yhat-MoveTest)^2)
 ```
-MSE is 0.4282526 so this tree predicts rating within .65 of the true response. Which is not bad.
+MSE is 0.4491893 so this tree predicts rating within .67 of the true response. Which is not bad.
 
 
 For Rank
@@ -167,7 +167,7 @@ MoveTest2<- NewMovieDS[-train, "Rank"]
 
 mean((yhat2-MoveTest2)^2)
 ```
-MSE is 51034.16 so this tree predicts rank within 225.9 of the true response. Not very good
+MSE is 56096.81 so this tree predicts rank within 236.85 of the true response. Not very good
 
 
 For genre
@@ -227,7 +227,7 @@ MoveTest4<- NewMovieDS[-train, "Revenue..Millions."]
 
 mean((yhat4-MoveTest4)^2)
 ```
-MSE for revenue is 6791.951 so this tree predicts revenue within 82.41 of the true response.This is not very good but given the large variation of the revenue data its hard to tell
+MSE for revenue is 7376.818 so this tree predicts revenue within 85.88 of the true response.This is not very good but given the large variation of the revenue data its hard to tell
 if this is bad.
 
 
@@ -258,7 +258,7 @@ MoveTest5<- NewMovieDS[-train, "Runtime..Minutes."]
 
 mean((yhat5-MoveTest5)^2)
 ```
-MSE for runtime is 327.63 so this tree predicts runtime to within 18.1 minutes. This is not a bad prediction of the runtime
+MSE for runtime is 270.74 so this tree predicts runtime to within 16.45 minutes. This is not a bad prediction of the runtime
 
 
 for votes
@@ -288,7 +288,7 @@ MoveTest6<- NewMovieDS[-train, "Votes"]
 
 mean((yhat6-MoveTest6)^2)
 ```
-MSE for runtime is 19079568696 so this tree predicts votes to within 138128.811 votes. Even with the large variance in votes data this prediction is quite bad and shows that a regression tree likely does not work for this response variable
+MSE for votes is 16857229085 so this tree predicts votes to within 129835.39 votes. Even with the large variance in votes data this prediction is quite bad and shows that a regression tree likely does not work for this response variable
 
 
 for metascore
@@ -318,7 +318,7 @@ MoveTest7<- NewMovieDS[-train, "Metascore"]
 
 mean((yhat7-MoveTest7)^2)
 ```
-MSE for metascore is 152.9769 so this tree predicts metascore within 12.37 points. While this might not be the best model for predicting metascore it is not bad.
+MSE for metascore is 174.9464 so this tree predicts metascore within 13.23 points. While this might not be the best model for predicting metascore it is not bad.
 
 
 ##Boosting
@@ -338,7 +338,7 @@ yhatBoost<-predict(moveBoost, newdata=movtest,n.trees=5000)
 boostMoveTest<- NewMovieDS[-train, "Rating"]
 mean((yhatBoost-boostMoveTest)^2)
 ```
-
+MSE = 0.2390691  standard deviation = 0.489
 
 For Rank
 ```{r}
@@ -351,7 +351,7 @@ yhatBoost2<-predict(moveBoost2, newdata=movtest,n.trees=5000)
 boostMoveTest2<- NewMovieDS[-train, "Rank"]
 mean((yhatBoost2-boostMoveTest2)^2)
 ```
-
+MSE = 40493.11  SD= 201.23
 
 For Genre
 ```{r}
@@ -364,7 +364,7 @@ yhatBoost3<-predict(moveBoost3, newdata=movtest,n.trees=5000)
 boostMoveTest3<- NewMovieDS[-train, "Genre"]
 mean((yhatBoost3-boostMoveTest3)^2)
 ```
-
+MSE = NA makes semse as categorical not numeric
 
 For Revenue
 ```{r}
@@ -377,7 +377,7 @@ yhatBoost4<-predict(moveBoost4, newdata=movtest,n.trees=5000)
 boostMoveTest4<- NewMovieDS[-train, "Revenue..Millions."]
 mean((yhatBoost4-boostMoveTest4)^2)
 ```
-
+MSE= 2760.968  SD=52.54
 
 For runttime
 ```{r}
@@ -390,7 +390,7 @@ yhatBoost5<-predict(moveBoost5, newdata=movtest,n.trees=5000)
 boostMoveTest5<- NewMovieDS[-train, "Runtime..Minutes."]
 mean((yhatBoost5-boostMoveTest5)^2)
 ```
-
+MSE=203.7398  SD=14.27
 
 For votes
 ```{r}
@@ -403,7 +403,7 @@ yhatBoost6<-predict(moveBoost6, newdata=movtest,n.trees=5000)
 boostMoveTest6<- NewMovieDS[-train, "Votes"]
 mean((yhatBoost6-boostMoveTest6)^2)
 ```
-
+MSE=8179454600  SD=90440.34
 
 For metascore
 ```{r}
@@ -416,4 +416,4 @@ yhatBoost7<-predict(moveBoost7, newdata=movtest,n.trees=5000)
 boostMoveTest7<- NewMovieDS[-train, "Metascore"]
 mean((yhatBoost7-boostMoveTest7)^2)
 ```
-
+MSE=123.7931 SD=11.13
