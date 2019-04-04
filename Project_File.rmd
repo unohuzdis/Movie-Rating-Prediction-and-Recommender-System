@@ -259,20 +259,22 @@ summary(treeMove)
 plot(treeMove)
 text(treeMove, pretty=0)
 
-cvMove<- cv.tree(treeMove)
-summary(cvMove)
-plot(cvMove)
+#cvMove<- cv.tree(treeMove)
+#summary(cvMove)
+#plot(cvMove)
 
-pruneMove <- prune.tree(treeMove, best =8)
-plot(pruneMove)
-text(pruneMove, pretty=0)
-
-
+#pruneMove <- prune.tree(treeMove, best =6)
+#plot(pruneMove)
+#text(pruneMove, pretty=0)
 
 treeMove2<- tree(New_MovieDS$Rating~Rank+factor(NewGenre)+Year+Runtime..Minutes.+Votes+Revenue..Millions.+Metascore,New_MovieDS, subset=train)
 summary(treeMove2)
-plot(treeMove2)
-text(treeMove2, pretty=0)
+cvMove<- cv.tree(treeMove2)
+summary(cvMove)
+plot(cvMove)
+pruneMove <- prune.tree(treeMove2, best =5)
+plot(pruneMove)
+text(pruneMove, pretty=0)
 
 yhat<- predict(treeMove2, newdata=test.data )
 MoveTest<- New_MovieDS[-train, "Rating"]
@@ -290,13 +292,13 @@ summary(treeMove3)
 plot(treeMove3)
 text(treeMove3, pretty=0)
 
-cvMove2<- cv.tree(treeMove3)
-summary(cvMove2)
-plot(cvMove2)
+#cvMove2<- cv.tree(treeMove3)
+#summary(cvMove2)
+#plot(cvMove2)
 
-pruneMove2 <- prune.tree(treeMove3, best =6)
-plot(pruneMove2)
-text(pruneMove2, pretty=0)
+#pruneMove2 <- prune.tree(treeMove3, best =6)
+#plot(pruneMove2)
+#text(pruneMove2, pretty=0)
 
 
 
@@ -304,6 +306,13 @@ treeMove4<- tree(New_MovieDS$Rank~Rating+factor(NewGenre)+Year+Runtime..Minutes.
 summary(treeMove4)
 plot(treeMove4)
 text(treeMove4, pretty=0)
+cvMove2<- cv.tree(treeMove4)
+summary(cvMove2)
+plot(cvMove2)
+
+pruneMove2 <- prune.tree(treeMove4, best =6)
+plot(pruneMove2)
+text(pruneMove2, pretty=0)
 
 yhat2<- predict(treeMove4, newdata=test.data)
 MoveTest2<- New_MovieDS[-train, "Rank"]
@@ -320,13 +329,13 @@ summary(treeMove5)
 plot(treeMove5)
 text(treeMove5, pretty=0)
 
-cvMove3<- cv.tree(treeMove5)
-summary(cvMove3)
-plot(cvMove3)
+#cvMove3<- cv.tree(treeMove5)
+#summary(cvMove3)
+#plot(cvMove3)
 
-pruneMove3 <- prune.tree(treeMove5, best =6)
-plot(pruneMove3)
-text(pruneMove3, pretty=0)
+#pruneMove3 <- prune.tree(treeMove5, best =6)
+#plot(pruneMove3)
+#text(pruneMove3, pretty=0)
 
 
 
@@ -334,6 +343,14 @@ treeMove6<- tree(New_MovieDS$NewGenre~Rank+Year+Runtime..Minutes.+Rating+Votes+R
 summary(treeMove6)
 plot(treeMove6)
 text(treeMove6, pretty=0)
+
+cvMove3<- cv.tree(treeMove6)
+summary(cvMove3)
+plot(cvMove3)
+
+pruneMove3 <- prune.tree(treeMove6, best =6)
+plot(pruneMove3)
+text(pruneMove3, pretty=0)
 
 yhat3<- predict(treeMove6, newdata=test.data)
 MoveTest3<- New_MovieDS[-train, "NewGenre"]
@@ -350,13 +367,13 @@ summary(treeMove7)
 plot(treeMove7)
 text(treeMove7, pretty=0)
 
-cvMove4<- cv.tree(treeMove7)
-summary(cvMove4)
-plot(cvMove4)
+#cvMove4<- cv.tree(treeMove7)
+#summary(cvMove4)
+#plot(cvMove4)
 
-pruneMove4 <- prune.tree(treeMove7, best =7)
-plot(pruneMove4)
-text(pruneMove4, pretty=0)
+#pruneMove4 <- prune.tree(treeMove7, best =7)
+#plot(pruneMove4)
+#text(pruneMove4, pretty=0)
 
 
 
@@ -365,6 +382,13 @@ summary(treeMove8)
 plot(treeMove8)
 text(treeMove8, pretty=0)
 
+cvMove4<- cv.tree(treeMove8)
+summary(cvMove4)
+plot(cvMove4)
+
+pruneMove4 <- prune.tree(treeMove8, best =7)
+plot(pruneMove4)
+text(pruneMove4, pretty=0)
 yhat4<- predict(treeMove8, newdata=test.data)
 MoveTest4<- New_MovieDS[-train, "Revenue..Millions."]
 
@@ -381,20 +405,27 @@ summary(treeMove9)
 plot(treeMove9)
 text(treeMove9, pretty=0)
 
-cvMove5<- cv.tree(treeMove9)
-summary(cvMove5)
-plot(cvMove5)
+#cvMove5<- cv.tree(treeMove9)
+#summary(cvMove5)
+#plot(cvMove5)
 
-pruneMove5 <- prune.tree(treeMove9, best =7)
-plot(pruneMove5)
-text(pruneMove5, pretty=0)
-
+#pruneMove5 <- prune.tree(treeMove9, best =7)
+#plot(pruneMove5)
+#text(pruneMove5, pretty=0)
 
 
 treeMove10<- tree(New_MovieDS$Runtime..Minutes.~Rank+factor(NewGenre)+Year+Rating+Votes+Revenue..Millions.+Metascore,New_MovieDS, subset=train)
 summary(treeMove10)
 plot(treeMove10)
 text(treeMove10, pretty=0)
+
+cvMove5<- cv.tree(treeMove10)
+summary(cvMove5)
+plot(cvMove5)
+
+pruneMove5 <- prune.tree(treeMove10, best =7)
+plot(pruneMove5)
+text(pruneMove5, pretty=0)
 
 yhat5<- predict(treeMove10, newdata=test.data)
 MoveTest5<- New_MovieDS[-train, "Runtime..Minutes."]
@@ -411,13 +442,13 @@ summary(treeMove11)
 plot(treeMove11)
 text(treeMove11, pretty=0)
 
-cvMove6<- cv.tree(treeMove11)
-summary(cvMove6)
-plot(cvMove6)
+#cvMove6<- cv.tree(treeMove11)
+#summary(cvMove6)
+#plot(cvMove6)
 
-pruneMove6 <- prune.tree(treeMove11, best =7)
-plot(pruneMove6)
-text(pruneMove6, pretty=0)
+#pruneMove6 <- prune.tree(treeMove11, best =7)
+#plot(pruneMove6)
+#text(pruneMove6, pretty=0)
 
 
 
@@ -425,6 +456,14 @@ treeMove12<- tree(New_MovieDS$Votes~Rank+factor(NewGenre)+Year+Runtime..Minutes.
 summary(treeMove12)
 plot(treeMove12)
 text(treeMove12, pretty=0)
+
+cvMove6<- cv.tree(treeMove12)
+summary(cvMove6)
+plot(cvMove6)
+
+pruneMove6 <- prune.tree(treeMove12, best =7)
+plot(pruneMove6)
+text(pruneMove6, pretty=0)
 
 yhat6<- predict(treeMove12, newdata=test.data)
 MoveTest6<- New_MovieDS[-train, "Votes"]
@@ -441,20 +480,26 @@ summary(treeMove13)
 plot(treeMove13)
 text(treeMove13, pretty=0)
 
-cvMove7<- cv.tree(treeMove13)
-summary(cvMove7)
-plot(cvMove7)
+#cvMove7<- cv.tree(treeMove13)
+#summary(cvMove7)
+#plot(cvMove7)
 
-pruneMove7 <- prune.tree(treeMove13, best =4)
-plot(pruneMove7)
-text(pruneMove7, pretty=0)
-
-
+#pruneMove7 <- prune.tree(treeMove13, best =4)
+#plot(pruneMove7)
+#text(pruneMove7, pretty=0)
 
 treeMove14<- tree(New_MovieDS$Metascore~Rank+factor(NewGenre)+Year+Runtime..Minutes.+Rating+Votes+Revenue..Millions.,New_MovieDS, subset=train)
 summary(treeMove14)
 plot(treeMove14)
 text(treeMove14, pretty=0)
+
+cvMove7<- cv.tree(treeMove14)
+summary(cvMove7)
+plot(cvMove7)
+
+pruneMove7 <- prune.tree(treeMove14, best =4)
+plot(pruneMove7)
+text(pruneMove7, pretty=0)
 
 yhat7<- predict(treeMove14, newdata=test.data)
 MoveTest7<- New_MovieDS[-train, "Metascore"]
