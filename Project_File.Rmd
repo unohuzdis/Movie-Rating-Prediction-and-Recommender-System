@@ -76,7 +76,6 @@ MeanTest
 table(tree_pre,testing_NewGenre)
 ```
 
-
 ##Pruning
 ```{r}
 cv.bocl <- cv.tree(bocl, FUN = prune.misclass)
